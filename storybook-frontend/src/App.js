@@ -2,21 +2,24 @@ import React, { useState } from 'react';
 import './App.css';
 
 function App() {
-  // State variables for the user prompt, loading status, and the storybook data
   const [userPrompt, setUserPrompt] = useState('');
   const [storybook, setStorybook] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // This variable will now use your DigitalOcean setting (https://plotfor.me/api)
+  // but will still work locally if you use a .env file!
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevents the form from reloading the page
+    e.preventDefault();
     setIsLoading(true);
     setError(null);
-    setStorybook([]); // Clear previous storybook data
+    setStorybook([]);
 
     try {
-      // Make a POST request to your backend API
-      const response = await fetch('http://localhost:3001/generate-storybook', {
+      // FIX: Changed 'http://localhost:3001' to the dynamic API_BASE_URL
+      const response = await fetch(`${API_BASE_URL}/generate-storybook`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,7 +27,6 @@ function App() {
         body: JSON.stringify({ userPrompt }),
       });
 
-      // Check if the response was successful
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
