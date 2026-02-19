@@ -69,7 +69,7 @@ app.post('/generate-storybook', async (req, res) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     prompt: page.imagePrompt,
-                    steps: 20, 
+                    steps: 8, 
                     width: 512,
                     height: 512,
                 }),
