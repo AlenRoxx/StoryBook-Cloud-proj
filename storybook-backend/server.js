@@ -11,17 +11,20 @@ const PORT = process.env.PORT || 3001; // Port for your backend server
 
 // Middlewares
 const corsOptions = {
-  origin: 'https://plotfor.me', // Allow your specific domain
-  methods: 'GET,POST',
-  allowedHeaders: 'Content-Type,Authorization',
+  origin: 'https://plotfor.me', // Explicitly allow your production domain
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 };
-app.use(cors(corsOptions)); // Allows your React frontend to communicate with this server
-app.use(bodyParser.json()); // Parses incoming JSON requests
 
-// Define the API endpoints for your local models
-const OLLAMA_API_URL = 'http://127.0.0.1:11434/api/generate';
-const SD_API_URL = 'http://127.0.0.1:7860/sdapi/v1/txt2img'; // Ensure AUTOMATIC1111 is running with the --api flag
+// Apply CORS with options to handle preflight requests
+app.use(cors(corsOptions)); 
+app.use(bodyParser.json());
+
+// Define the API endpoints using Environment Variables for Production
+// If the variable isn't found (like when running locally), it falls back to localhost
+const OLLAMA_API_URL = process.env.OLLAMA_API_URL || 'http://127.0.0.1:11434/api/generate';
+const SD_API_URL = process.env.SD_API_URL || 'http://127.0.0.1:7860/sdapi/v1/txt2img';
 
 // Main endpoint to generate the storybook
 app.post('/generate-storybook', async (req, res) => {
@@ -34,12 +37,12 @@ app.post('/generate-storybook', async (req, res) => {
 
     try {
         // Step 1: Generate the story and image prompts with Llama 3
-        console.log('Generating story and image prompts with Llama 3...');
+        console.log(`Using Ollama at: ${OLLAMA_API_URL}`);
         const llamaResponse = await fetch(OLLAMA_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'llama3', // The model you pulled with Ollama
+                model: 'llama3', 
                 prompt: `Generate a short, multi-page story for a children's book based on the following theme: "${userPrompt}". 
                          The output should be a single JSON array named "pages". Each object in the array must have two keys: 
                          "text" (for the story content) and "imagePrompt" (a detailed description for a text-to-image model).
@@ -54,11 +57,11 @@ app.post('/generate-storybook', async (req, res) => {
         }
 
         const data = await llamaResponse.json();
-        const storyData = JSON.parse(data.response); // Parse the JSON string from Ollama's response
+        const storyData = JSON.parse(data.response); 
         const storyPages = storyData.pages;
 
         // Step 2: Generate an image for each page using Stable Diffusion
-        console.log('Generating images for each page...');
+        console.log(`Using Stable Diffusion at: ${SD_API_URL}`);
         const fullStorybook = [];
 
         for (const page of storyPages) {
@@ -67,7 +70,7 @@ app.post('/generate-storybook', async (req, res) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     prompt: page.imagePrompt,
-                    steps: 20, // Lower steps for faster generation
+                    steps: 20, 
                     width: 512,
                     height: 512,
                 }),
@@ -78,8 +81,6 @@ app.post('/generate-storybook', async (req, res) => {
             }
 
             const sdData = await sdResponse.json();
-            
-            // The image is returned as a Base64 string in the 'images' array
             const imageUrl = `data:image/png;base64,${sdData.images[0]}`;
 
             fullStorybook.push({
@@ -88,9 +89,9 @@ app.post('/generate-storybook', async (req, res) => {
             });
         }
 
-        // Step 3: Send the complete storybook back to the frontend
+        // Step 3: Send back to frontend
         res.status(200).json({ success: true, storybook: fullStorybook });
-        console.log('Storybook successfully generated and sent to frontend!');
+        console.log('Storybook successfully generated!');
 
     } catch (error) {
         console.error('Error generating storybook:', error);
@@ -100,5 +101,5 @@ app.post('/generate-storybook', async (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Backend server running on http://localhost:${PORT}`);
+    console.log(`Backend server running on port ${PORT}`);
 });
