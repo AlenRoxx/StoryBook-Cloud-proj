@@ -10,7 +10,13 @@ const app = express();
 const PORT = process.env.PORT || 3001; // Port for your backend server
 
 // Middlewares
-app.use(cors()); // Allows your React frontend to communicate with this server
+const corsOptions = {
+  origin: 'https://plotfor.me', // Allow your specific domain
+  methods: 'GET,POST',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true
+};
+app.use(cors(corsOptions)); // Allows your React frontend to communicate with this server
 app.use(bodyParser.json()); // Parses incoming JSON requests
 
 // Define the API endpoints for your local models
