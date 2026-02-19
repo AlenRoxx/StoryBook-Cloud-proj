@@ -42,11 +42,10 @@ app.post('/generate-storybook', async (req, res) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'llama3', 
-                prompt: `Generate a short, multi-page story for a children's book based on the following theme: "${userPrompt}". 
-                         The output should be a single JSON array named "pages". Each object in the array must have two keys: 
-                         "text" (for the story content) and "imagePrompt" (a detailed description for a text-to-image model).
-                         Example format: {"pages":[{"text": "...", "imagePrompt": "..."}, {"text": "...", "imagePrompt": "..."}]}`,
+                model: 'qwen2.5:1.5b', // The new, lightning-fast model
+                prompt: `Generate a 5-page children's book story based on: "${userPrompt}". 
+                         The output MUST be a JSON array named "pages" with EXACTLY 5 objects.
+                         Each object must have "text" (under 30 words) and "imagePrompt" (a detailed description).`,
                 stream: false,
                 format: 'json',
             }),
