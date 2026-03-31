@@ -22,7 +22,6 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 // Define the API endpoints using Environment Variables for Production
-// If the variable isn't found (like when running locally), it falls back to localhost
 const OLLAMA_API_URL = process.env.OLLAMA_API_URL || 'http://127.0.0.1:11434/api/generate';
 const SD_API_URL = process.env.SD_API_URL || 'http://127.0.0.1:7860/sdapi/v1/txt2img';
 
@@ -36,18 +35,25 @@ app.post('/generate-storybook', async (req, res) => {
     }
 
     try {
-        // Step 1: Generate the story and image prompts with Llama 3
+        // Step 1: Generate the story with OPTIMIZED settings for 10-15s consistency
         console.log(`Using Ollama at: ${OLLAMA_API_URL}`);
         const llamaResponse = await fetch(OLLAMA_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'qwen2.5:1.5b', // The new, lightning-fast model
+                model: 'qwen2.5:1.5b', 
                 prompt: `Generate a 5-page children's book story based on: "${userPrompt}". 
                          The output MUST be a JSON array named "pages" with EXACTLY 5 objects.
-                         Each object must have "text" (under 30 words) and "imagePrompt" (a detailed description).`,
+                         Each "text" field should be exactly 2 short sentences (approx 25 words).
+                         Each "imagePrompt" should be a detailed visual description.`,
                 stream: false,
                 format: 'json',
+                options: {
+                    num_ctx: 1024,      // Fast startup
+                    num_predict: 400,   // Prevents over-generation
+                    temperature: 0.7,   // Balance of creativity and speed
+                    num_gpu: 29         // Uses all 29 layers on your RTX 3050
+                }
             }),
         });
 
@@ -69,7 +75,7 @@ app.post('/generate-storybook', async (req, res) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     prompt: page.imagePrompt,
-                    steps: 8, 
+                    steps: 8,           // Kept at 8 for 5-second image speed
                     width: 512,
                     height: 512,
                 }),
