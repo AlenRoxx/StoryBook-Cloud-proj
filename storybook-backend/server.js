@@ -42,10 +42,13 @@ app.post('/generate-storybook', async (req, res) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: 'qwen2.5:1.5b', 
-                prompt: `Generate a 5-page children's book story based on: "${userPrompt}". 
+                prompt: `Generate a 5-page children's book story based on the theme: "${userPrompt}".
                          The output MUST be a JSON array named "pages" with EXACTLY 5 objects.
                          Each "text" field should be exactly 2 short sentences (approx 25 words).
-                         Each "imagePrompt" should be a detailed visual description.`,
+
+                         CRITICAL IMAGE INSTRUCTION: Each "imagePrompt" must be a descriptive visual scene
+                         and MUST start exactly with the phrase: "A vibrant kids crayon drawing style illustration of...".
+                         Conclude the description with these stylistic tokens: "naive art, textured wax crayon strokes, bold primary colors, simple thick outlines, clean blank white background, storybook aesthetic".`,
                 stream: false,
                 format: 'json',
                 options: {
