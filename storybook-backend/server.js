@@ -53,7 +53,7 @@ app.post('/generate-storybook', async (req, res) => {
                 format: 'json',
                 options: {
                     num_ctx: 1024,      // Fast startup
-                    num_predict: 400,   // Prevents over-generation
+                    num_predict: 800,   // Raised from 400 - crayon-art imagePrompt text needs more headroom to avoid truncated JSON
                     temperature: 0.7,   // Balance of creativity and speed
                     num_gpu: 29         // Uses all 29 layers on your RTX 3050
                 }
