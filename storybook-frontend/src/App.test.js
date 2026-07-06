@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders the storybook generator heading', () => {
+test('renders the storyteller heading', () => {
   render(<App />);
-  expect(screen.getByText(/AI Storybook Generator/i)).toBeInTheDocument();
+  expect(screen.getByText(/AI Storyteller/i)).toBeInTheDocument();
 });

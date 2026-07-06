@@ -40,7 +40,7 @@ function InputPanel({ userPrompt, setUserPrompt, onSubmit, animationClass }) {
     <div className={`w-full max-w-2xl ${animationClass}`}>
       <div className="text-center mb-8">
         <h1 className="text-4xl sm:text-5xl font-bold text-shimmer mb-3">
-          AI Storybook Generator
+          AI Storyteller
         </h1>
         <p className="text-purple-200/60 text-sm sm:text-base">
           Describe a world. Watch it come to life, page by page.
