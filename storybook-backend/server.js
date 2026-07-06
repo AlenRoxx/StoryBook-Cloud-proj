@@ -41,21 +41,19 @@ app.post('/generate-storybook', async (req, res) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'qwen2.5:1.5b', 
-                prompt: `Generate a 5-page children's book story based on the theme: "${userPrompt}".
-                         The output MUST be a JSON array named "pages" with EXACTLY 5 objects.
-                         Each "text" field should be exactly 2 short sentences (approx 25 words).
-
-                         CRITICAL IMAGE INSTRUCTION: Each "imagePrompt" must be a descriptive visual scene
-                         and MUST start exactly with the phrase: "A vibrant kids crayon drawing style illustration of...".
-                         Conclude the description with these stylistic tokens: "naive art, textured wax crayon strokes, bold primary colors, simple thick outlines, clean blank white background, storybook aesthetic".`,
+                model: 'qwen2.5:1.5b',
+                prompt: `Write a 5-page children's story about "${userPrompt}".
+                         Return ONLY a JSON object with a "pages" array containing EXACTLY 5 objects.
+                         Each object MUST have:
+                         "text": "2 short sentences for kids (max 20 words per page)."
+                         "imagePrompt": "A vibrant kids crayon drawing style illustration of [scene], naive art, textured wax crayon strokes, bold primary colors, simple thick outlines, clean white background."`,
                 stream: false,
                 format: 'json',
                 options: {
-                    num_ctx: 1024,      // Fast startup
-                    num_predict: 800,   // Raised from 400 - crayon-art imagePrompt text needs more headroom to avoid truncated JSON
-                    temperature: 0.7,   // Balance of creativity and speed
-                    num_gpu: 29         // Uses all 29 layers on your RTX 3050
+                    num_ctx: 1024,
+                    num_predict: 450,
+                    temperature: 0.6,
+                    num_gpu: 29
                 }
             }),
         });
